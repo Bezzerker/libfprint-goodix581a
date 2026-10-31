@@ -1,0 +1,19 @@
+# build outputs
+/pkg/src/
+/pkg/pkg/
+/pkg/*.tar.*
+/pkg/*.pkg.tar.*
+/sigeval
+/out/
+__pycache__/
+*.pyc
+/.venv/
+
+# proprietary inputs and biometric data never belong in the repository
+Wbdi.dll
+*.bin
+*.raw
+*.pgm
+
+# local tooling
+/.claude/

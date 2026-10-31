@@ -1,0 +1,41 @@
+# libfprint 1.94.100 + goodix581a driver (Goodix 27c6:581a, Xiaomi Mi Notebook Pro 15.6 2021)
+# Drop-in replacement for extra/libfprint. Remove with: sudo pacman -Rns fprintd libfprint-goodix581a
+
+pkgname=libfprint-goodix581a
+_pkgname=libfprint
+pkgver=1.94.100
+pkgrel=3
+pkgdesc="Library for fingerprint readers (with Goodix 27c6:581a driver)"
+url="https://fprint.freedesktop.org/"
+arch=(x86_64)
+license=(LGPL-2.1-or-later)
+depends=(libgcc glib2 glibc libgudev libgusb nss openssl pixman)
+makedepends=(glib2-devel meson systemd)
+provides=("libfprint=$pkgver" libfprint-2.so)
+conflicts=(libfprint)
+source=("https://gitlab.freedesktop.org/libfprint/libfprint/-/archive/v$pkgver/libfprint-v$pkgver.tar.gz"
+        goodix581a.c
+        sigmatch.c
+        sigmatch.h
+        integrate.sh)
+sha256sums=('edc90e02f330a7595ceaf37f2c6ec32ed43541347fe936d3273b0bb2524fd19c'
+            SKIP
+            SKIP
+            SKIP
+            SKIP)
+
+prepare() {
+  sh integrate.sh "$_pkgname-v$pkgver"
+  # upstream tests/meson.build iterates a dict with one variable when introspection is off
+  sed -i 's/foreach driver_test: drivers_tests/foreach driver_test, _unused: drivers_tests/' \
+    "$_pkgname-v$pkgver/tests/meson.build"
+}
+
+build() {
+  arch-meson "$_pkgname-v$pkgver" build -D drivers=all -D doc=false -D installed-tests=false -D introspection=false
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
